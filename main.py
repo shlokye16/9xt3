@@ -20,7 +20,6 @@ import smtplib
 from email.message import EmailMessage
 
 # Config
-SECRET_KEY = "0TMN0vfgRobMve_TQl7GRspHSCyDltQDaLnE7MlZuZw"
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL",  "sqlite:///./db.sqlite3")
 
 # App Init
@@ -138,14 +137,14 @@ def genvcode(db: Session):
 def send_verification_email(email, code):
     msg = EmailMessage()
     msg["Subject"] = "Verify your email for Okie 9x9 TicTacToe game account"
-    msg["From"] = "Okie <noreply.okie9x9tictactoe@gmail.com>"
+    msg["From"] = EMAIL_FROM
     msg["To"] = email
-    msg["Reply-To"] = "noreply.okie9x9tictactoe@gmail.com"
+    msg["Reply-To"] = EMAIL_USER
     body = f"Hi, \n Your verification code is: {code} \n This code expires in 10 minutes. \n If you didn’t request this, you can safely ignore this email."
     msg.set_content(body)
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login("noreply.okie9x9tictactoe@gmail.com", "pknc rolj kswm xvvl")
+        smtp.login(EMAIL_USER, EMAIL_PASS)
         smtp.send_message(msg)
             
 @app.get("/verify", response_class=HTMLResponse)

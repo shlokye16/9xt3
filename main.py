@@ -21,6 +21,9 @@ from email.message import EmailMessage
 
 # Config
 SECRET_KEY = os.environ.get("SECRET_KEY")
+EMAIL_FROM = os.environ.get("EMAIL_FROM")
+EMAIL_USER = os.environ.get("EMAIL_USER")
+EMAIL_PASS = os.environ.get("EMAIL_PASS")
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL",  "sqlite:///./db.sqlite3")
 
 # App Init

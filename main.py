@@ -20,7 +20,7 @@ import smtplib
 from email.message import EmailMessage
 
 # Config
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = {{ SECRET_KEY }}
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL",  "sqlite:///./db.sqlite3")
 
 # App Init

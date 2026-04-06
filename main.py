@@ -25,7 +25,8 @@ ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory="templates/9xt3")
 
 Base = declarative_base()

@@ -1,277 +1,159 @@
-{% extends "9xt3/layout.html" %}
-
+{% extends "base.html" %}
+{% set hide_blobs = True %}
+{% block title %}Game {{ code }} · Okie{% endblock %}
 {% block body %}
-{% if not user %}
-<div class="container-fluid p-5" style="background-color: grey; height: 100vh;">
-    <p class="h6 text-black pl-5">
-    {% if not msg %}
-    <h1> Sorry, Restricted :(</h1>
-    <h6> Login or register to access this page </h6>
-    {% else %}
-    <h1> Sorry, Restricted :(</h1>
-    <h6> Trying to access wrong game </h6>
-    {% endif %}
-    </p>
+{% if msg %}
+<div style="display:flex;align-items:center;justify-content:center;height:80vh;">
+  <div class="overlay-box"><h3>Access denied</h3><p>This game doesn't belong to you.</p><a href="/home" class="btn">Home</a></div>
 </div>
 {% else %}
-<div class="container d-flex flex-column align-items-center mt-5">
-    <div class="w-100 d-flex justify-content-end mb-3">
-        <div class="border border-dark  p-2 rounded bg-light">
-            <strong>Code:</strong> {{ code }}
-        </div>
-    </div>
-    <br>
-    <div class="board-wrapper position-relative">
-        <div class="big-board ">
-            {% for big_idx in range(9) %}
-                {% if loop.index0 % 3 == 0 %}
-                <div class="small-row">
-                {% endif %}
-                {% set winner = state.big_board[big_idx] %}
-                <div class="small-board "
-                     data-board="{{ big_idx }}">
-                    {% if winner %}
-                        <div class="cell flex-fill d-flex justify-content-center align-items-center winner-cell">
-                            {% if winner == 'X' or winner == 'O' %}
-                                {{ winner }}
-                            {% else %}
-                                =   {# For tie / freezone #}
-                            {% endif %}
-                        </div>
-                    {% else %}
-                        {% for row in range(3) %}
-                        <div class="cell-row">
-                            {% for col in range(3) %}
-                                {% set cell_idx = row * 3 + col %}
-                                {% set val = state.boards[big_idx][cell_idx] %}
-                                <div class="cell 
-                                                    {% if big_idx == state.forced_board %}forced-board{% endif %}
-                                                    {% if state.forced_board == None %}forced-board{% endif %}
-                                                    {% if big_idx == state.last_move[0] and cell_idx == state.last_move[1] %}lm{% endif %}"
-                                     data-board="{{ big_idx }}"
-                                     data-cell="{{ cell_idx }}">
-                                    {{ val if val else "" }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                {% if loop.index0 % 3 == 2 %}
-                </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-    <br>
-    <div class="w-100 d-flex justify-content-between mt-4 px-3">
-        <div class="player-info">
-            {% if game.player_x_id == user.id %}
-            <strong>Player X:</strong> {{ "You" if game.player_x else "Waiting..." }}<br>
-            {% else %}
-            <strong>Player X:</strong> {{ game.player_x.username if game.player_x else "Waiting..." }}<br>
-            {% endif %}
-            {% if game.cp_id == game.player_x_id %}
-                <span class="badge bg-dark">^ Turn</span>
-            {% endif %}
-        </div>
-        <div class="player-info text-end" id="poi">
-            {% if game.player_o_id == user.id %}
-            <strong>Player O:</strong> {{ "You" if game.player_o else "Waiting..." }}<br>
-            {% else %}
-            <strong>Player O:</strong> {{ game.player_o.username if game.player_o else "Waiting..." }}<br>
-            {% endif %}
-            {% if game.cp_id == game.player_o_id %}
-                <span class="badge bg-dark">^ Turn</span>
-            {% endif %}
-        </div>
-    </div><br><br>
-    <div class ="w-100 d-flex justify-content mb-3">
-    <button type="button" onclick="window.location.href='/resign/{{ code }}'" class="btn btn-outline-dark col-2"> Resign</button>
-    <div>
-    
-    
-    {% if user.id == game.cp_id and user.id == game.player_x_id and not game.player_o_id %}
-    <div class="overlay d-flex justify-content-center align-items-center" >
-        <div class="overlay-box p-5 text-center bg-black rounded shadow">
-            <h3>Waiting for the other player to join.</h3>
-        </div>
-    </div>
-    {% endif %}
+<div class="game-page">
+  <div class="game-header">
+    <span class="game-code-badge">{{ code }}</span>
+  </div>
 
-    {% if user.id != game.cp_id and game.status and flag%}
-    <div class="overlay d-flex justify-content-center align-items-center" >
-        <div class="overlay-box p-5 text-center bg-black rounded shadow">
-            <h3>Waiting for the other player to make a move.</h3>
+  <div class="board-wrap" id="boardWrap">
+    <div class="big-board" id="bigBoard">
+      {% for big_idx in range(9) %}
+        {% if loop.index0 % 3 == 0 %}<div class="small-row">{% endif %}
+        {% set bwinner = state.big_board[big_idx] %}
+        {% set is_active = (state.forced_board == big_idx) or (state.forced_board == None and bwinner == None) %}
+        <div class="small-board {% if bwinner %}won{% elif is_active %}active{% endif %}" data-board="{{ big_idx }}">
+          {% if bwinner %}
+            <div class="winner-cell">{{ bwinner if bwinner != "TIE" else "=" }}</div>
+          {% else %}
+            {% for row in range(3) %}
+            <div class="cell-row">
+              {% for col in range(3) %}
+                {% set cell_idx = row * 3 + col %}
+                {% set val = state.boards[big_idx][cell_idx] %}
+                {% set is_lm = state.last_move and big_idx == state.last_move[0] and cell_idx == state.last_move[1] %}
+                <div class="cell{% if is_lm %} lm{% endif %}"
+                  data-board="{{ big_idx }}" data-cell="{{ cell_idx }}">{{ val if val else "" }}</div>
+              {% endfor %}
+            </div>
+            {% endfor %}
+          {% endif %}
         </div>
+        {% if loop.index0 % 3 == 2 %}</div>{% endif %}
+      {% endfor %}
     </div>
-    {% endif %}
-    
+
     {% if game.winner %}
-    <div class="overlay_last d-flex justify-content-center align-items-center" >
-        <div class="overlay-box p-5 text-center bg-black rounded shadow" style="border: 1px solid white; width: 400px; min-height: 250px;">
-            <br>
-            {% if game.winner == "O" %}
-            {% if user.id == game.player_o_id %}
-            <h3> You Won 🎉 <br> </h3>
-            {% else %}
-            <h3> You Lost 😢 <br> </h3>
-            {% endif %}
-            {% endif %}
-            {% if game.winner == "X" %}
-            {% if user.id == game.player_x_id %}
-            <h3> You Won 🎉 <br> </h3>
-            {% else %}
-            <h3> You Lost 😢 <br> </h3>
-            {% endif %}
-            {% endif %}
-            {% if game.winner == "TIE" %}
-            <h3> It was a DRAW 🤝<br> </h3>
-            {% endif %}
-            {% if game.resign %}
-            <h5 class="text-light"> The game was resigned</h5>
-            {% endif %}
-            <br>
-            <button onclick="window.location.href='/'" type="button" class="btn btn-lg btn-outline-light col-12 mx-auto">
-                Home
-            </button>
-        </div>
+    <div class="overlay">
+      <div class="overlay-box">
+        {% if result == "tie" %}
+          <img src="{{ url_for('static', path='9xt3/mascot_eh.png') }}" class="result-mascot" alt=""/>
+          <h3>Draw</h3>
+        {% elif result == "win" %}
+          <img src="{{ url_for('static', path='9xt3/mascot_yay.png') }}" class="result-mascot" alt=""/>
+          <h3>You won</h3>
+        {% else %}
+          <img src="{{ url_for('static', path='9xt3/mascot_aw.png') }}" class="result-mascot" alt=""/>
+          <h3>You lost</h3>
+        {% endif %}
+        {% if game.resign %}<p>The game was resigned.</p>{% endif %}
+        <a href="/home" class="btn">Home</a>
+      </div>
+    </div>
+    {% elif user.id == game.cp_id and not game.player_o_id %}
+    <div class="overlay">
+      <div class="overlay-box"><h3>Waiting for opponent</h3><p>Share the code <strong>{{ code }}</strong> to invite someone.</p></div>
+    </div>
+    {% elif user.id != game.cp_id and game.status and flag %}
+    <div class="overlay">
+      <div class="overlay-box"><h3>Opponent's turn</h3><p>Waiting for them to move.</p></div>
     </div>
     {% endif %}
+  </div>
+
+  <div class="game-players" id="gamePlayers">
+    <div class="player-block {% if game.cp_id == game.player_x_id %}turn-active{% endif %}">
+      <div class="player-name">{{ "You" if game.player_x_id == user.id else (game.player_x.username if game.player_x else "Waiting...") }} <span style="color:var(--text-muted);font-size:12px;">(X)</span>{% if game.cp_id == game.player_x_id %}<span class="turn-star">✱</span>{% endif %}</div>
+    </div>
+    <div class="player-block {% if game.cp_id == game.player_o_id %}turn-active{% endif %}" style="text-align:right;" id="poi">
+      <div class="player-name">{% if game.cp_id == game.player_o_id %}<span class="turn-star">✱</span>{% endif %}{{ "You" if game.player_o_id == user.id else (game.player_o.username if game.player_o else "Waiting...") }} <span style="color:var(--text-muted);font-size:12px;">(O)</span></div>
+    </div>
+  </div>
+
+  {% if game.status and not game.winner %}
+  <div style="margin-top:50px;">
+    <button onclick="showResign()" class="btn btn-sm btn-danger" style="width:auto;display:block;margin:0 auto;">Resign</button>
+  </div>
+  {% endif %}
 </div>
 
-<style>
-.board-wrapper {
-    position: relative;
-}
-
-.big-board {
-    display: flex;
-    flex-direction: column;
-    background: black;
-    padding: 2px;
-}
-
-.small-row {
-    display: flex;
-    background: black;
-}
-
-.small-board {
-    width: 180px;
-    height: 180px;
-    display: flex;
-    flex-direction: column;
-    background: black;
-    padding: 2px;
-}
-
-.cell-row {
-    display: flex;
-    flex: 1;
-    background: black;
-}
-
-.cell {
-    flex: 1;
-    background: white;
-    border: 1px solid black;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    line-height: 1;
-}
-
-.winner-cell {
-    font-size: 48px;
-    font-weight: bold;
-    background-color: white;
-    border: 2px solid black;
-    text-align: center;
-}
-
-.player-info span.badge {
-    margin-top: 5px;
-    display: inline-block;
-}
-
-.cell.forced-board {
-    background: #ee4e5e;
-}
-    
-.cell.lm {
-    color: #ba2636;
-    font-weight: bolder;
-    background: #dedede;
-}
-    
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,.75);
-    z-index: 1000;
-}
-    
-.overlay_last {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,.9);
-        z-index: 1000;
-}
-
-.overlay-box h3 {
-    color: white;
-}
-</style>
+<div class="modal-overlay hidden" id="resignModal">
+  <div class="modal-box">
+    <h3>Resign game?</h3>
+    <p>You'll forfeit this game. This cannot be undone.</p>
+    <div class="modal-actions">
+      <a href="/resign/{{ code }}" class="btn btn-danger">Yes, resign</a>
+      <button onclick="hideResign()" class="btn" style="background:rgba(255,255,255,0.04);">Cancel</button>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <script>
-    const cells = document.querySelectorAll(".cell");
-    const currentPlayerId = {{ user.id }};
-    let knownCpId = {{ game.cp_id | tojson }};
-    let knownPlayerO = {{ game.player_o_id | tojson }};
-    cells.forEach(cell => {
-        cell.addEventListener("click", () => {
-            if (currentPlayerId !== knownCpId) return;
-            fetch("/move", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    game_id: {{ game.id }},
-                    board: cell.dataset.board,
-                    cell: cell.dataset.cell
-                })
-            })
-            .then(res => res.json())
-            .then(() => location.reload())
-            .catch(() => location.reload());
-        });
+const uid = {{ user.id }};
+let cpId = {{ game.cp_id | tojson }};
+const gameId = {{ game.id }};
+
+function showResign() { document.getElementById('resignModal').classList.remove('hidden'); }
+function hideResign() { document.getElementById('resignModal').classList.add('hidden'); }
+document.getElementById('resignModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) hideResign(); });
+
+function attachCellListeners() {
+  document.querySelectorAll('.cell').forEach(cell => {
+    cell.addEventListener('click', async () => {
+      if (uid !== cpId) return;
+      const res = await fetch('/move', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({game_id: gameId, board: cell.dataset.board, cell: cell.dataset.cell})
+      });
+      const data = await res.json();
+      if (data.ok) {
+        if (data.winner) { location.replace(location.href); return; }
+        await softUpdate();
+      }
     });
-    if ({{ game.status | tojson }}) {
-        const gameId = {{ game.id }};
-        const playerODiv = document.getElementById("poi");
-        setInterval(() => {
-            fetch(`/game/${gameId}/status`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.player_o_name && playerODiv.innerText.includes("Waiting")) {
-                        playerODiv.innerHTML = `<strong>Player O:</strong> ${data.player_o_name}<br>`;
-                    }
-                    if (knownCpId === null && data.cp_id !== null) { location.reload(); return; }
-                    if (knownCpId !== data.cp_id) {  location.reload(); }
-                    if (knownPlayerO !== data.player_o_id) { location.reload(); return; }
-                })
-                .catch(err => console.error(err)); }, 1500);
+  });
+}
+
+async function softUpdate() {
+  try {
+    const html = await fetch(location.href).then(r => r.text());
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const newBoard = doc.getElementById('bigBoard');
+    const newPlayers = doc.getElementById('gamePlayers');
+    const newCpId = doc.querySelector('[data-cpid]')?.dataset.cpid;
+    const newPlayerO = doc.querySelector('[data-playeroid]')?.dataset.playeroid;
+    if (newBoard) document.getElementById('bigBoard').innerHTML = newBoard.innerHTML;
+    if (newPlayers) document.getElementById('gamePlayers').innerHTML = newPlayers.innerHTML;
+    if (newCpId !== undefined) cpId = newCpId === 'null' ? null : parseInt(newCpId);
+    attachCellListeners();
+  } catch(e) {}
+}
+
+attachCellListeners();
+
+{% if game.status %}
+setInterval(async () => {
+  try {
+    const d = await fetch('/game/' + gameId + '/status').then(r => r.json());
+    if (!d.status) { location.replace(location.href); return; }
+    if (d.player_o_name && document.getElementById('poi')?.innerText.includes('Waiting')) {
+      location.replace(location.href); return;
     }
-</script>
+    if (d.cp_id !== cpId) {
+      await softUpdate();
+      cpId = d.cp_id;
+      if (cpId === uid) document.querySelector('.board-wrap > .overlay')?.remove();
+    }
+  } catch(e) {}
+}, 1500);
 {% endif %}
+</script>
+<span id="stateData" data-cpid="{{ game.cp_id | tojson }}" data-playeroid="{{ game.player_o_id | tojson }}" style="display:none;"></span>
 {% endblock %}

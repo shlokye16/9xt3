@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block navbar %}
+<div class="landing-header">
+  <div class="drop" style="padding:8px 20px;"><span style="font-size:15px;font-weight:600;">Okie</span></div>
+  <a href="/rules" class="drop" style="padding:8px 18px;font-size:13px;color:rgba(255,255,255,0.62);text-decoration:none;">Rules</a>
+</div>
+{% endblock %}
+{% block body %}
+<div class="landing-wrap">
+  <div class="landing-about">
+      <h4>9x9 Tic-Tac-Toe</h4><br>
+    <h1>The game you used to play,<br>now across the distance.</h1>
+    <p>Make a game, get a 6-letter code. Send it to someone you know. They join : no matchmaking, no strangers, no randos. Just two people who already know each other, playing like they're back in the same room.</p>
+    <p> For how the 9x9 board works, see <a href="/rules">Rules</a>.</p>
+  </div>
+  <div class="landing-actions">
+    <a href="/login" class="btn">Login</a>
+    <div class="divider"><span>or</span></div>
+    <a href="/register" class="btn btn-accent">Register</a>
+  </div>
+</div>
+{% endblock %}

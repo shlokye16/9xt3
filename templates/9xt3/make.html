@@ -1,66 +1,20 @@
-{% extends "9xt3/layout.html" %}
-
+{% extends "base.html" %}
+{% block title %}Start · Okie{% endblock %}
 {% block body %}
-{% if not user %}
-<div class="container-fluid p-5" style="background-color: grey; height: 100vh;">
-    <p class="h6 text-black pl-5">
-    <h1> Sorry, Restricted :(</h1>
-    <h6> Login or register to access this page </h6>
-    </p>
-</div>
-{% else %}
-{% if m %}
-<div class="alert alert-danger" role="alert">
-    Sorry. An error occcured. We generated a new code.
-  </div>
-{% endif %}
-<br><br><br>
-<div class="container mt-5 d-flex flex-column">
-    <form id="joinForm" action="/make" method="post" class="d-flex flex-column align-items-center w-100">
-        <div class="join-container p-4 rounded border border-dark bg-white d-flex flex-column"
-             style="width: 400px; min-height: 500px; border: 1.5px solid #000 border-radius: 25px">
-            <br><div class="info text-center"><h4>Code</h4></div><br>
-            <div class="code-boxes d-flex gap-1 mb-3" style="justify-content: center;">
-                {% for i in range(6) %}
-                <input type="text" maxlength="1" disabled class="code-box form-control text-center" id="box{{i+1}}" value="{{ code[i] }}"/>
-                {% endfor %}
-            </div>
-            <br><br>
-            <div style="text-align: left; width: 100%; padding-left: 20px;">
-                <p class="h6 text-black">
-                    - Share this code to challenge the person. <br>
-                    - Press 'start' to join the game when ready. <br>
-                </p>
-            </div>
-            <input type="hidden" name="code" value="{{ code }}" id="combinedCode" />
-            </br>
-            <div  class="d-grid gap-4 col-10 mx-auto container-fluid">
-            <button type="submit" class="btn btn-lg btn-outline-dark col-8 mx-auto">
-                Start
-            </button>
-            <button onclick="window.location.href='/'" type="button" class="btn btn-lg btn-outline-dark col-8 mx-auto">
-                Home
-            </button>
-            <button onclick="window.location.href='/join'"  type="button"  class="btn btn-lg btn-outline-dark col-8 mx-auto">
-                Join Instead
-            </button>
-            <br>
-            </div>
-        </div>
+<div class="single-panel-wrap">
+  <div class="single-panel">
+    <h3>Start a game</h3>
+    <p class="panel-sub">Share this code with your opponent. You'll play as O.</p>
+    {% if message %}<div class="msg">{{ message }}</div>{% endif %}
+    <div class="code-boxes">
+      {% for i in range(6) %}<input class="code-box" value="{{ code[i] }}" disabled/>{% endfor %}
+    </div>
+    <p class="play-info">Press Start when you are  ready. Share the code after starting the game. They'll join using this code and play as X.</p>
+    <form action="/make" method="post" class="play-actions">
+      <input type="hidden" name="code" value="{{ code }}"/>
+      <button type="submit" class="btn">Start</button>
+      <a href="/play" class="btn" style="background:rgba(255,255,255,0.04);">Back</a>
     </form>
+  </div>
 </div>
-
-
-<style>
-.code-boxes input.code-box {
-    width: 55px;
-    height: 70px;
-    font-size: 30px;
-    font-weight: bold;
-    border-radius: 15px;
-    border:1px solid #000;
-    text-transform: uppercase;
-}
-</style>
-{% endif %}
 {% endblock %}

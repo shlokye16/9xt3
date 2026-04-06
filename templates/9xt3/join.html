@@ -1,92 +1,42 @@
-{% extends "9xt3/layout.html" %}
-
+{% extends "base.html" %}
+{% block title %}Join · Okie{% endblock %}
 {% block body %}
-{% if not user %}
-<div class="container-fluid p-5" style="background-color: grey; height: 100vh;">
-    <p class="h6 text-black pl-5">
-    <h1> Sorry, Restricted :(</h1>
-    <h6> Login or register to access this page </h6>
-    </p>
-</div>
-{% else %}
- {% if m %}
- <div class="alert alert-danger" role="alert">
-    {{ message }}
-  </div>
-{% endif %}
-<br><br><br><br><br>
-<div class="container mt-5 d-flex flex-column align-items-center">
-    <form id="joinForm" action="/join" method="post" class="d-flex flex-column align-items-center w-100">
-        <div class="join-container p-4 rounded border border-dark bg-white d-flex flex-column align-items-center"
-             style="width: 400px; min-height: 500px; border: 1.5px solid #000 border-radius: 25px">
-            <br><br><div class="info text-center"><h4>Code</h4></div><br>
-            <div class="code-boxes d-flex gap-1 mb-3" style="justify-content: center;">
-                {% for i in range(6) %}
-                <input type="text" maxlength="1" class="code-box form-control text-center" id="box{{i+1}}" />
-                {% endfor %}
-            </div>
-            <input type="hidden" name="code" id="combinedCode" />
-            <br>
-            <div  class="d-grid gap-4 col-10 mx-auto container-fluid">
-            <button type="submit" class="btn btn-lg btn-outline-dark col-8 mx-auto">
-                Start
-            </button>
-            <button onclick="window.location.href='/'" type="button" class="btn btn-lg btn-outline-dark col-8 mx-auto">
-                Home
-            </button>
-            <button onclick="window.location.href='/make'"  type="button"  class="btn btn-lg btn-outline-dark col-8 mx-auto">
-                Make Instead
-            </button>
-            </div>
-        </div>
+<div class="single-panel-wrap">
+  <div class="single-panel">
+    <h3>Join a game</h3>
+    <p class="panel-sub">Enter the 6-letter code your opponent shared. You'll play as X.</p>
+    {% if message %}<div class="msg">{{ message }}</div>{% endif %}
+    <form id="joinForm" action="/join" method="post">
+      <div class="code-boxes">
+        {% for i in range(6) %}<input type="text" maxlength="1" class="code-box" id="jb{{i}}"/>{% endfor %}
+      </div>
+      <input type="hidden" name="code" id="joinCode"/>
+      <p class="play-info" style="margin-top:16px;">Type the code one character at a time. The cursor will jump automatically.</p>
+      <div class="play-actions" style="margin-top:8px;">
+        <button type="submit" class="btn">Join</button>
+        <a href="/play" class="btn" style="background:rgba(255,255,255,0.04);">Back</a>
+      </div>
     </form>
+  </div>
 </div>
-
-
-<style>
-.code-boxes input.code-box {
-    width: 55px;
-    height: 70px;
-    font-size: 30px;
-    font-weight: bold;
-    border-radius: 15px;
-    border:1px solid #000;
-    text-transform: uppercase;
-}
-</style>
-
 <script>
-const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-const boxes = Array.from(document.querySelectorAll('.code-box'));
-
-boxes.forEach((box, idx) => {
-    box.addEventListener('input', () => {
-        let val = box.value.toUpperCase();
-        if (!ALPHABET.includes(val)) {
-            box.value = '';
-            return;
-        }
-        box.value = val;
-        if (idx < boxes.length - 1 && val) boxes[idx + 1].focus();
-    });
-    
-    box.addEventListener('keydown', (e) => {
-            if (e.key === "Backspace" && !box.value && idx > 0) {
-                e.preventDefault();
-                boxes[idx - 1].focus();
-                boxes[idx - 1].value = '';
-            }
-        });
+const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const boxes = Array.from(document.querySelectorAll('#joinForm .code-box'));
+boxes.forEach((b, i) => {
+  b.addEventListener('input', () => {
+    let v = b.value.toUpperCase();
+    if (!ALPHA.includes(v)) { b.value = ''; return; }
+    b.value = v;
+    if (i < boxes.length - 1) boxes[i+1].focus();
+  });
+  b.addEventListener('keydown', e => {
+    if (e.key === 'Backspace' && !b.value && i > 0) { e.preventDefault(); boxes[i-1].focus(); boxes[i-1].value = ''; }
+  });
 });
-
-document.getElementById('joinForm').addEventListener('submit', (e) => {
-    const combined = boxes.map(b => b.value).join('');
-    if (combined.length !== 6) {
-        e.preventDefault();
-        return;
-    }
-    document.getElementById('combinedCode').value = combined;
+document.getElementById('joinForm').addEventListener('submit', e => {
+  const code = boxes.map(b => b.value).join('');
+  if (code.length !== 6) { e.preventDefault(); return; }
+  document.getElementById('joinCode').value = code;
 });
 </script>
-{% endif %}
 {% endblock %}

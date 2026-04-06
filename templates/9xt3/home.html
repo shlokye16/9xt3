@@ -1,45 +1,34 @@
-{% extends "9xt3/layout.html" %}
-
+{% extends "base.html" %}
+{% block title %}Home · Okie{% endblock %}
 {% block body %}
-    <div  class="container-fluid p-5">
-    <p class="h6 text-black pl-5">
-        <h5>Hey, let's play 9x9 Tic-Tac-Toe.</h5>
-        For rules, click <a href="/rules">here</a>.<br>
-        The maker of the game plays with the icon 'O'<br>
-        If you exited the game by mistake, re-enter the code to join the game. <br>
-        Remember: The game is deleted if it is inactive for more than 72hrs<br><br>
-        {% if not user %} <b>Have to create an account or login to play.</b>{% endif %}
-    </p>
-    </div>
-    
-    {% if user %}
-    <div  class="d-grid gap-4 col-6 mx-auto container-fluid">
-        <form action="/join" method="get">
-        <button type="submit" class=" btn btn-lg  btn-outline-dark form-control" >
-               Join a Game
-        </button>
-        </form>
-        <form action="/make" method="get">
-        <button type="submit" class=" btn btn-lg  btn-outline-dark form-control">
-                Start a Game
-        </button>
-        </form>
-    </div>
-
-    {% else %}
-    <div  class="d-grid gap-4 col-6 mx-auto container-fluid">
-        <form action="/join" method="get">
-        <button type="submit" class=" btn btn-lg  btn-outline-dark form-control" disabled>
-               Join a Game
-        </button>
-        </form>
-        <form action="/make" method="get">
-        <button type="submit" class=" btn btn-lg  btn-outline-dark form-control" disabled>
-                Start a Game
-        </button>
-        </form>
-    </div>
-    {% endif %}
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h2>Your games</h2>
+    <a href="/play" class="btn btn-sm" style="width:auto;">+ New game</a>
+  </div>
+  {% if games %}
+  <div class="cards-grid">
+    {% for game in games %}
+    {% set is_x = user.id == game.player_x_id %}
+    {% set opponent = game.player_o if is_x else game.player_x %}
+    {% set my_turn = game.cp_id == user.id %}
+    <a href="/game/{{ game.id }}" class="game-card">
+      <div class="card-vs">vs <strong>{{ opponent.username if opponent else "Waiting..." }}</strong></div>
+      <div class="card-status">ONGOING</div>
+      <div class="card-turn">{{ "Your turn" if my_turn else "Their turn" }}</div>
+      <div class="card-muted">You play as {{ "X" if is_x else "O" }}</div>
+      <div style="flex:1;"></div>
+      <div class="card-muted">Last move {{ game.last_activity.strftime("%b %d, %H:%M") if game.last_activity else "—" }}</div>
+      <div class="card-code">{{ game.code }}</div>
+      <div class="card-btn">Resume</div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    No ongoing games.<br>
+    <a href="/play" style="color:var(--text-accent);">Start or join one.</a>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}
-
-

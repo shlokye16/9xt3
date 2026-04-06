@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Okie · 9x9 Tic-Tac-Toe{% endblock %}</title>
+  <link href="{{ url_for('static', path='9xt3/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+{% if not hide_blobs %}
+<div class="blob-bg"></div>
+<div class="glass-overlay"></div>
+<div class="mascot-wrap">
+  <img src="{{ url_for('static', path='9xt3/mascot.png') }}" alt=""/>
+</div>
+{% endif %}
+<div class="page-content">
+  {% block navbar %}
+  <nav class="navbar">
+    <div class="nav-left">
+      <a href="{% if user and user.verified %}/home{% else %}/{% endif %}" class="nav-logo">Okie</a>
+      {% if user and user.verified %}
+      <a href="/home" class="nav-link">Home</a>
+      <a href="/rules" class="nav-link">Rules</a>
+      <a href="/about" class="nav-link">About</a>
+      {% else %}
+      <a href="/rules" class="nav-link">Rules</a>
+      <a href="/about" class="nav-link">About</a>
+      {% endif %}
+    </div>
+    <div class="nav-right">
+      {% if user and user.verified %}
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-link">Logout</a>
+      {% elif user %}
+      <a href="/logout" class="nav-link">Logout</a>
+      {% else %}
+      <a href="/login" class="nav-link">Login</a>
+      <a href="/register" class="nav-link">Register</a>
+      {% endif %}
+    </div>
+  </nav>
+  {% endblock %}
+  {% block body %}{% endblock %}
+</div>
+</body>
+</html>

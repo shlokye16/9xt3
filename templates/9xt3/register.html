@@ -1,29 +1,18 @@
-{% extends "9xt3/layout.html" %}
-
+{% extends "base.html" %}
+{% block title %}Register · Okie{% endblock %}
 {% block body %}
-    <div class="container-fluid pl-5 pt-5 pr-5">
+<div class="auth-wrap">
+  <div class="auth-box">
     <h2>Register</h2>
-    <br>
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
-
+    {% if message %}<div class="msg">{{ message }}</div>{% endif %}
     <form action="/register" method="post">
-        <div class="form-group">
-            <input class="form-control" autofocus type="text" name="username" placeholder="Username">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="email" name="email" placeholder="Email Address">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
-        </div>
-        <input class="btn btn-outline-dark" type="submit" value="Register">
+      <input class="input" autofocus type="text" name="username" placeholder="Username" required/>
+      <input class="input" type="email" name="email" placeholder="Email address" required/>
+      <input class="input" type="password" name="password" placeholder="Password" required/>
+      <input class="input" type="password" name="confirmation" placeholder="Confirm password" required/>
+      <button type="submit" class="btn" style="margin-top:4px;">Register</button>
     </form>
-    <br>
-    <h6 class="text-black">Already have an account? <a href="/login">Log In here.</a></h6>
-    </div>
+    <div class="auth-link">Already have an account? <a href="/login">Login</a></div>
+  </div>
+</div>
 {% endblock %}

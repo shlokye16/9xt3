@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Play · Okie{% endblock %}
+{% block body %}
+<div class="play-chooser">
+  <h2>Let's play</h2>
+  <p>Start a new game or join one with a code.</p>
+  <div class="play-choice-btns">
+    <a href="/make" class="play-choice-btn">
+      <span class="choice-label">Start</span>
+      <span class="choice-sub">Create a game and share the code with a friend.</span>
+    </a>
+    <a href="/join" class="play-choice-btn">
+      <span class="choice-label">Join</span>
+      <span class="choice-sub">Enter a code to join your friend's game.</span>
+    </a>
+  </div>
+</div>
+{% endblock %}

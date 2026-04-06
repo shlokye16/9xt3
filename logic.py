@@ -1,4 +1,3 @@
-
 EMPTY = None
 X = "X"
 O = "O"

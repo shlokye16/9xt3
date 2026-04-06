@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Reset Password · Okie{% endblock %}
+{% block body %}
+<div class="verify-wrap">
+  <div class="verify-box">
+    <h3>Enter reset code</h3>
+    <div class="verify-subtitle">Code sent to {{ email }}</div>
+    {% if message %}<div class="msg">{{ message }}</div>{% endif %}
+    <form id="rf" action="/reset" method="post">
+      <div class="code-boxes">
+        {% for i in range(6) %}<input type="text" maxlength="1" class="code-box" id="rb{{i}}"/>{% endfor %}
+      </div>
+      <input type="hidden" name="code" id="rcode"/>
+      <input class="input" type="password" name="password" placeholder="New password" required style="margin-top:14px;"/>
+      <input class="input" type="password" name="confirmation" placeholder="Confirm new password" required style="margin-top:8px;"/>
+      <button type="submit" class="btn" style="margin-top:14px;">Reset password</button>
+    </form>
+    <div class="verify-hints">Code expires in 10 minutes. Check spam if not received.</div>
+    <div class="verify-links">
+      <a href="/forgot" class="verify-link">Resend code</a>
+      <a href="/login" class="verify-link">Back to login</a>
+    </div>
+  </div>
+</div>
+<script>
+const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const boxes = Array.from(document.querySelectorAll('#rf .code-box'));
+boxes.forEach((b,i) => {
+  b.addEventListener('input', () => {
+    let v = b.value.toUpperCase();
+    if (!ALPHA.includes(v)) { b.value=''; return; }
+    b.value = v;
+    if (i < boxes.length-1) boxes[i+1].focus();
+  });
+  b.addEventListener('keydown', e => {
+    if (e.key==='Backspace' && !b.value && i>0) { e.preventDefault(); boxes[i-1].focus(); boxes[i-1].value=''; }
+  });
+});
+document.getElementById('rf').addEventListener('submit', e => {
+  const code = boxes.map(b=>b.value).join('');
+  if (code.length!==6) { e.preventDefault(); return; }
+  document.getElementById('rcode').value = code;
+});
+</script>
+{% endblock %}

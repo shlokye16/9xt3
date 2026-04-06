@@ -1,52 +1,79 @@
-{% extends "9xt3/layout.html" %}
-
+{% extends "base.html" %}
+{% block title %}Profile · Okie{% endblock %}
 {% block body %}
-    {% if not user %}
-    <div class="container-fluid p-5" style="background-color: grey; height: 100vh;">
-        <p class="h6 text-black pl-5">
-        <h1> Sorry, Restricted :(</h1>
-        <h6> It seems like you are not logged in. </h6>
-        </p>
+<div class="profile-wrap">
+  <div class="pfp-wrap">
+    <div class="pfp-drop">
+      <img src="{{ url_for('static', path='9xt3/pfp.png') }}" alt="profile"/>
     </div>
-    {% else %}
-    <div class="container-fluid pl-5 pt-5 pr-5">
-    <h2>Profile</h2>
+    <div class="pfp-username">{{ user.username }}</div>
+  </div>
+  {% if message %}<div class="msg">{{ message }}</div>{% endif %}
 
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
-    
-    <br>
-    <div class="d-flex align-items-center justify-content-between">
-    <p class="h6 text-black pl-2">
-        Username: {{ user.username }}
-    </p>
-    <button onclick="window.location.href='/cusern'"  type="button"  class="btn btn btn-outline-dark col-3" >
-                Change username
-    </button>
+  <div class="profile-section">
+    <div class="profile-row">
+      <div><div class="profile-label">Username</div><div class="profile-val">{{ user.username }}</div></div>
+      <button class="profile-edit-btn" onclick="toggle('username')">Change</button>
     </div>
-    <div class="d-flex align-items-center justify-content-between mt-2">
-    <p class="h6 text-black pl-2">
-        Email: {{ user.email }}
-    </p>
-    <button onclick="window.location.href='/cemail'"  type="button"  class="btn btn btn-outline-dark col-3">
-                Change email
-    </button>
+    <form class="profile-form {% if open_form == 'username' %}open{% endif %}" id="f-username" action="/cusern" method="post">
+      <input class="input" type="text" name="username" placeholder="New username" required/>
+      <input class="input" type="password" name="password" placeholder="Confirm with password" required/>
+      <button type="submit" class="btn">Save</button>
+    </form>
+  </div>
+
+  <div class="profile-section">
+    <div class="profile-row">
+      <div><div class="profile-label">Email</div><div class="profile-val">{{ user.email }}</div></div>
+      <button class="profile-edit-btn" onclick="toggle('email')">Change</button>
     </div>
-    <div class="d-flex align-items-center justify-content-between mt-2">
-    <p class="h6 text-black pl-2">
-        Password: ********
-    </p>
-    <button onclick="window.location.href='/cpwd'"  type="button"  class="btn btn btn-outline-dark col-3">
-                Change password
-    </button>
+    <form class="profile-form {% if open_form == 'email' %}open{% endif %}" id="f-email" action="/cemail" method="post">
+      <input class="input" type="email" name="email" placeholder="New email" required/>
+      <input class="input" type="email" name="confirmation" placeholder="Confirm new email" required/>
+      <input class="input" type="password" name="password" placeholder="Confirm with password" required/>
+      <button type="submit" class="btn">Save</button>
+    </form>
+  </div>
+
+  <div class="profile-section">
+    <div class="profile-row">
+      <div><div class="profile-label">Password</div><div class="profile-val">••••••••</div></div>
+      <button class="profile-edit-btn" onclick="toggle('password')">Change</button>
     </div>
-    <br><br><br>
-    <div class ="w-100 d-flex justify-content-end mb-3">
-    <button type="button" onclick="window.location.href='/logout'" class="btn btn-outline-dark col-3">Logout</button>
-    &nbsp;
-    <button type="button" onclick="window.location.href='/delete'" class="btn btn-outline-danger col-3">Delete Account</button>
-    <div>
-    </div>
-{% endif %}
+    <form class="profile-form {% if open_form == 'password' %}open{% endif %}" id="f-password" action="/cpwd" method="post">
+      <input class="input" type="password" name="password" placeholder="New password" required/>
+      <input class="input" type="password" name="confirmation" placeholder="Confirm new password" required/>
+      <button type="submit" class="btn">Save</button>
+    </form>
+  </div>
+
+  <div class="profile-danger">
+    <p>Permanently delete your account and all associated data.</p>
+    <button class="btn btn-danger btn-sm" style="width:auto;display:block;margin:0 auto;" onclick="document.getElementById('deleteModal').classList.remove('hidden')">Delete account</button>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="deleteModal">
+  <div class="modal-box">
+    <h3>Delete account?</h3>
+    <p>This permanently deletes your account and all game data. Enter your password to confirm.</p>
+    <form action="/delete" method="post" class="modal-actions">
+      <input class="input" type="password" name="password" placeholder="Your password" required/>
+      <button type="submit" class="btn btn-danger">Delete permanently</button>
+      <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')" class="btn" style="background:rgba(255,255,255,0.04);">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function toggle(id) {
+  const f = document.getElementById('f-'+id);
+  const isOpen = f.classList.contains('open');
+  document.querySelectorAll('.profile-form').forEach(x => x.classList.remove('open'));
+  if (!isOpen) f.classList.add('open');
+}
+document.getElementById('deleteModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden');
+});
+</script>
 {% endblock %}
